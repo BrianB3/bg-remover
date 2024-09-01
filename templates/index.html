@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Background Remover</title>
+    <style>
+        .preview img {
+            max-width: 150px;
+            margin: 10px;
+            border: 1px solid #ccc;
+        }
+        .processed img {
+            max-width: 150px;
+            margin: 10px;
+            border: 2px solid #4caf50;
+        }
+        .container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Background Remover</h1>
+    </header>
+
+    <main class="container">
+        <form id="uploadForm" method="POST" enctype="multipart/form-data">
+            <input type="file" name="image" id="fileSelector" accept="image/*" multiple required>
+            <div class="preview"></div>
+            <button type="submit">Upload and Remove Background</button>
+        </form>
+
+        {% if uploaded_images %}
+            <h2>Processed Images:</h2>
+            <div class="processed">
+                {% for image in uploaded_images %}
+                    <img src="{{ url_for('uploaded_file', filename=image) }}" alt="Processed Image">
+                {% endfor %}
+            </div>
+            <a href="{{ url_for('download_all') }}">
+                <button>Download All Images</button>
+            </a>
+        {% endif %}
+    </main>
+
+    <script>
+        document.getElementById('fileSelector').addEventListener('change', function(event) {
+            const previewContainer = document.querySelector('.preview');
+            previewContainer.innerHTML = '';  // Limpiar cualquier contenido previo
+
+            const files = event.target.files;
+            if (files.length === 0) {
+                previewContainer.innerHTML = '<p>No files currently selected for upload</p>';
+                return;
+            }
+
+            Array.from(files).forEach(file => {
+                const reader = new FileReader();
+
+                reader.onload = function(e) {
+                    const imgElement = document.createElement('img');
+                    imgElement.src = e.target.result;
+                    previewContainer.appendChild(imgElement);
+                };
+
+                reader.readAsDataURL(file);
+            });
+        });
+    </script>
+</body>
+</html>
